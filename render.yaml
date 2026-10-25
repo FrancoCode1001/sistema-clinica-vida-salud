@@ -1,0 +1,34 @@
+# ==============================================================================
+# render.yaml - Infrastructure as Code (Blueprint) para Render
+# Despliega automáticamente:
+# 1. Base de datos administrada PostgreSQL 16 (Render PostgreSQL)
+# 2. Servicio Web Apache + PHP 8.2 con Docker
+# ==============================================================================
+
+databases:
+  - name: clinica-vida-salud-db
+    databaseName: db_clinica_vida_salud
+    user: clinica_user
+    plan: free
+    region: oregon
+    postgresMajorVersion: 16
+
+services:
+  - type: web
+    name: clinica-vida-salud
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      # Conecta automáticamente la base de datos de Render con la aplicación
+      - key: DATABASE_URL
+        fromDatabase:
+          name: clinica-vida-salud-db
+          property: connectionString
+      - key: DB_SSLMODE
+        value: require
+      - key: APP_DEBUG
+        value: "false"

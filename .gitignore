@@ -1,0 +1,39 @@
+# ==============================================================================
+# .gitignore - Clínica Vida Salud
+# Archivos y credenciales excluidos del repositorio Git
+# ==============================================================================
+
+# Credenciales locales y configuraciones de entorno
+config/local_config.php
+.env
+.env.local
+.env.*.local
+*.env
+
+# Editores y Entornos de Desarrollo (IDE)
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archivos de registro (logs) y temporales
+*.log
+logs/
+tmp/
+*.tmp
+
+# Volúmenes o respaldos locales
+backup/
+*.bak
+*.sql.gz

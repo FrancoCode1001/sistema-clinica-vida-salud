@@ -1,0 +1,40 @@
+# ==============================================================================
+# .dockerignore - Clínica Vida Salud
+# Archivos y carpetas excluidos del contexto de construcción de la imagen Docker
+# ==============================================================================
+
+# Control de versiones
+.git/
+.gitignore
+.gitattributes
+
+# Configuraciones locales y secretos
+config/local_config.php
+.env
+.env.local
+.env.*.local
+*.env
+
+# Editores y Entornos de Desarrollo (IDE)
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archivos de registro (logs) y temporales
+*.log
+logs/
+tmp/
+*.tmp
+
+# Archivos de configuración de despliegue no requeridos dentro del contenedor
+render.yaml
+README.md

@@ -1,0 +1,437 @@
+/* ==========================================================================
+   SISTEMA DE GESTIÓN DE CITAS MÉDICAS - CLÍNICA VIDA SALUD
+   Hoja de estilos personalizada - UI/UX Moderna y Responsiva
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #0284c7;
+    --primary-hover: #0369a1;
+    --secondary-color: #0d9488;
+    --dark-sidebar: #0f172a;
+    --dark-sidebar-hover: #1e293b;
+    --dark-sidebar-active: #0284c7;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-primary: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --sidebar-width: 280px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   LAYOUT: SIDEBAR + MAIN CONTENT
+   ========================================================================== */
+
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--dark-sidebar);
+    color: #f1f5f9;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    border-right: 1px solid #1e293b;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+    z-index: 1040;
+    transition: all 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-brand .brand-badge {
+    background: linear-gradient(135deg, #0284c7, #06b6d4);
+    color: white;
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.sidebar-user-card {
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebar-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0284c7, #0d9488);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+    overflow-y: auto;
+}
+
+.nav-section-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    padding: 0.85rem 1.5rem 0.35rem 1.5rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.65rem 1.5rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+    color: #ffffff;
+    background-color: var(--dark-sidebar-hover);
+    border-left-color: #38bdf8;
+}
+
+.sidebar-link.active {
+    color: #ffffff;
+    background: linear-gradient(90deg, rgba(2, 132, 199, 0.25) 0%, rgba(2, 132, 199, 0.05) 100%);
+    border-left-color: var(--dark-sidebar-active);
+    font-weight: 600;
+}
+
+.sidebar-link i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.sidebar-link.active i,
+.sidebar-link:hover i {
+    color: #38bdf8;
+}
+
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================================
+   MAIN CONTENT AREA
+   ========================================================================== */
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.top-navbar {
+    height: 64px;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.content-body {
+    flex: 1;
+    padding: 2rem 1.75rem;
+}
+
+/* ==========================================================================
+   PAGE HEADERS (Identificación de CU para prototipos de UI)
+   ========================================================================== */
+
+.page-header-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.cu-badge {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+    display: inline-block;
+    margin-bottom: 0.35rem;
+}
+
+.cu-package-badge {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+}
+
+/* ==========================================================================
+   CARDS & TABLES
+   ========================================================================== */
+
+.card-custom {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    margin-bottom: 1.75rem;
+    overflow: hidden;
+}
+
+.card-custom .card-header {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+}
+
+.table-custom {
+    margin-bottom: 0;
+}
+
+.table-custom thead th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.85rem 1rem;
+}
+
+.table-custom tbody td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    font-size: 0.88rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.table-custom tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   ESTADOS DE CITA Y BADGES
+   ========================================================================== */
+
+.badge-estado {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    letter-spacing: 0.03em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.badge-estado-programada {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.badge-estado-confirmada {
+    background-color: #cffafe;
+    color: #0e7490;
+    border: 1px solid #a5f3fc;
+}
+
+.badge-estado-atendida {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.badge-estado-cancelada {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.badge-estado-inasistencia {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.badge-activo {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.badge-inactivo {
+    background-color: #f1f5f9;
+    color: #64748b;
+}
+
+/* ==========================================================================
+   SLOTS DE HORARIOS DISPONIBLES (CU-08 / CU-09)
+   ========================================================================== */
+
+.slot-btn {
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #1e293b;
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.slot-btn:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    background-color: #f0f9ff;
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.slot-btn.selected {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: white;
+    border-color: #0284c7;
+    box-shadow: 0 4px 8px rgba(2, 132, 199, 0.3);
+}
+
+.slot-btn.occupied,
+.slot-btn:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* ==========================================================================
+   KPIS & STATS CARDS (Dashboard)
+   ========================================================================== */
+
+.kpi-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+.kpi-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* ==========================================================================
+   TOASTS & ALERTAS FLOTANTES
+   ========================================================================== */
+
+.toast-container-custom {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 1080;
+}
+
+/* ==========================================================================
+   LOGIN SCREEN
+   ========================================================================== */
+
+.login-page-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 460px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.login-header {
+    background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+    color: white;
+    padding: 2.25rem 2rem;
+    text-align: center;
+}

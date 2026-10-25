@@ -1,0 +1,17 @@
+# ==============================================================================
+# .htaccess - Clínica Vida Salud
+# Reglas de seguridad y reescritura para Apache
+# ==============================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+</IfModule>
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Protección de archivos confidenciales y configuración
+<FilesMatch "(^\.env|local_config\.php|\.git|\.dockerignore|render\.yaml)">
+    Require all denied
+</FilesMatch>
