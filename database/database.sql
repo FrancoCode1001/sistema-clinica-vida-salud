@@ -1,19 +1,3 @@
--- ============================================================================
--- UNIVERSIDAD AUTÓNOMA GABRIEL RENÉ MORENO
--- FACULTAD DE INGENIERÍA DE CIENCIAS DE LA COMPUTACIÓN Y TELECOMUNICACIONES
--- Materia: Ingeniería De Requisitos Y Modelado
--- Docente: Ing. Garzón Cuéllar Angélica
--- Estudiante: Franco Alvis Jhosmar Kevin (Registro: 219188572) - Grupo #26
--- Proyecto: Sistema de Información para la Gestión y Control de Citas Médicas
---           para la Clínica Vida Salud
--- Motor: PostgreSQL 14+ / 16+
--- Base de Datos: db_clinica_vida_salud
--- ============================================================================
-
--- (Opcional si se ejecuta desde psql conectado a 'postgres')
--- CREATE DATABASE db_clinica_vida_salud WITH ENCODING 'UTF8';
--- \c db_clinica_vida_salud;
-
 -- Limpieza previa para ejecución idempotente
 DROP TRIGGER IF EXISTS trg_bitacora_citas ON citas_medicas;
 DROP TRIGGER IF EXISTS trg_bitacora_medicos ON medicos;
