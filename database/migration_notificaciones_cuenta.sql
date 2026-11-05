@@ -52,7 +52,3 @@ FROM usuarios u
 WHERE NOT EXISTS (
     SELECT 1 FROM notificaciones n WHERE n.id_usuario = u.id_usuario
 );
-
--- 5. Eliminar rol obsoleto Auditor si existe
-DELETE FROM roles WHERE nombre_rol = 'Auditor';
-

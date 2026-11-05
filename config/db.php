@@ -78,8 +78,6 @@ class Database
 
             try {
                 self::$instance = new PDO($dsn, DB_USER, DB_PASS, $options);
-                // Sincronizar zona horaria de sesión PostgreSQL con la oficial de Bolivia (UTC-4)
-                self::$instance->exec("SET TIME ZONE 'America/La_Paz'");
             } catch (PDOException $e) {
                 self::$lastError = $e->getMessage();
                 // Registrar el detalle técnico en los logs del servidor (Apache/Docker/Render)

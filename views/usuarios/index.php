@@ -18,9 +18,7 @@ $busqueda = $_GET['busqueda'] ?? '';
 $id_rol_filtro = !empty($_GET['id_rol']) ? (int)$_GET['id_rol'] : null;
 
 $usuarios = Usuario::listarTodos($busqueda, $id_rol_filtro);
-$roles = array_filter(Rol::listarTodos(true), function ($r) {
-    return strcasecmp($r['nombre_rol'], 'Auditor') !== 0;
-});
+$roles = Rol::listarTodos(false);
 
 $pageTitle = 'Gestión de Usuarios y Roles';
 $currentPage = 'usuarios';
