@@ -15,7 +15,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     unzip \
     curl \
+    tzdata \
     && rm -rf /var/lib/apt/lists/*
+
+# Configuración de zona horaria oficial a nivel sistema operativo (Bolivia UTC-4)
+ENV TZ="America/La_Paz"
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 2. Configurar e instalar extensiones oficiales de PHP (PostgreSQL, GD con FreeType/JPEG, Zip)
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
