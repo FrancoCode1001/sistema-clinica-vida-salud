@@ -208,8 +208,7 @@ INSERT INTO roles (id_rol, nombre_rol, descripcion, estado) VALUES
 (1, 'Administrador', 'Control total del sistema y configuración clínica', 'ACTIVO'),
 (2, 'Recepcionista', 'Admisión de pacientes y programación de citas', 'ACTIVO'),
 (3, 'Medico', 'Atención de consultas y visualización de agenda', 'ACTIVO'),
-(4, 'Paciente', 'Autogestión de perfil y visualización de citas', 'ACTIVO'),
-(5, 'Auditor', 'Rol de supervisión y lectura de reportes gerenciales', 'INACTIVO');
+(4, 'Paciente', 'Autogestión de perfil y visualización de citas', 'ACTIVO');
 
 -- 2.2 usuarios (password default: 'password' / hash bcrypt estándar compatible)
 INSERT INTO usuarios (id_usuario, username, email, password_hash, id_rol, estado) VALUES
