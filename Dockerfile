@@ -79,5 +79,5 @@ RUN ln -s /var/www/html /var/www/html/clinicaVidaSalud \
 # 11. Exponer el puerto del contenedor
 EXPOSE 80
 
-# 12. Comando de arranque de Apache en primer plano
-CMD ["apache2-foreground"]
+# 12. Comando de arranque: ejecutar migraciones de base de datos y arrancar Apache
+CMD ["sh", "-c", "php /var/www/html/database/run_migration.php || true; exec apache2-foreground"]

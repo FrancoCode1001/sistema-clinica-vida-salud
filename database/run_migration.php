@@ -5,8 +5,8 @@ try {
     $pdo = Database::getConnection();
     $sql = file_get_contents(__DIR__ . '/migration_notificaciones_cuenta.sql');
     $pdo->exec($sql);
-    echo "MIGRACION_EXITOSA\n";
-} catch (Exception $e) {
-    echo "ERROR_MIGRACION: " . $e->getMessage() . "\n";
-    exit(1);
+    echo "[MIGRATION] Migración de notificaciones y cuenta ejecutada exitosamente.\n";
+} catch (\Throwable $e) {
+    echo "[MIGRATION WARNING] " . $e->getMessage() . "\n";
 }
+
