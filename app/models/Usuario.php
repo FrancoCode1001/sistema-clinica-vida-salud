@@ -248,4 +248,85 @@ class Usuario
 
         return ['status' => true, 'message' => "Estado de usuario actualizado a {$nuevoEstado}."];
     }
+
+    /**
+     * Permite a un usuario cambiar su contraseña verificando la contraseña actual
+     */
+    public static function cambiarPassword(int $id_usuario, string $oldPassword, string $newPassword, ?int $id_usuario_auth = null): array
+    {
+        $pdo = Database::getConnection();
+
+        if (empty($oldPassword) || empty($newPassword)) {
+            return ['status' => false, 'message' => 'Debe ingresar la contraseña actual y la nueva contraseña.'];
+        }
+
+        if (strlen($newPassword) < 6) {
+            return ['status' => false, 'message' => 'La nueva contraseña debe tener al menos 6 caracteres.'];
+        }
+
+        $stmt = $pdo->prepare("SELECT password_hash, username FROM usuarios WHERE id_usuario = :id");
+        $stmt->execute([':id' => $id_usuario]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            return ['status' => false, 'message' => 'El usuario no existe.'];
+        }
+
+        if (!password_verify($oldPassword, $user['password_hash'])) {
+            return ['status' => false, 'message' => 'La contraseña actual ingresada es incorrecta.'];
+        }
+
+        if ($oldPassword === $newPassword) {
+            return ['status' => false, 'message' => 'La nueva contraseña no puede ser idéntica a la anterior.'];
+        }
+
+        $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
+        $stmtUp = $pdo->prepare("UPDATE usuarios SET password_hash = :hash WHERE id_usuario = :id");
+        $stmtUp->execute([':hash' => $newHash, ':id' => $id_usuario]);
+
+        AuditoriaHelper::registrar(
+            $id_usuario_auth ?: $id_usuario,
+            'UPDATE',
+            'usuarios',
+            "Actualización segura de contraseña para el usuario '{$user['username']}'"
+        );
+
+        return ['status' => true, 'message' => '¡Su contraseña ha sido cambiada exitosamente!'];
+    }
+
+    /**
+     * Obtiene las preferencias de cuenta y privacidad de un usuario
+     */
+    public static function obtenerPreferencias(int $id_usuario): ?array
+    {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->prepare("SELECT id_usuario, username, email, notificaciones_activas, privacidad_contacto_emergencia, privacidad_recordatorios FROM usuarios WHERE id_usuario = :id");
+        $stmt->execute([':id' => $id_usuario]);
+        $res = $stmt->fetch();
+        return $res ?: null;
+    }
+
+    /**
+     * Actualiza la configuración de notificaciones y opciones de privacidad de la cuenta
+     */
+    public static function actualizarPreferencias(int $id_usuario, bool $notificacionesActivas, bool $privacidadContacto, bool $privacidadRecordatorios, ?int $id_usuario_auth = null): array
+    {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->prepare("UPDATE usuarios SET notificaciones_activas = :notif, privacidad_contacto_emergencia = :em, privacidad_recordatorios = :rec WHERE id_usuario = :id");
+        $stmt->execute([
+            ':notif' => $notificacionesActivas ? 1 : 0,
+            ':em'    => $privacidadContacto ? 1 : 0,
+            ':rec'   => $privacidadRecordatorios ? 1 : 0,
+            ':id'    => $id_usuario
+        ]);
+
+        AuditoriaHelper::registrar(
+            $id_usuario_auth ?: $id_usuario,
+            'UPDATE',
+            'usuarios',
+            "Actualización de preferencias de notificaciones y privacidad del usuario ID {$id_usuario}"
+        );
+
+        return ['status' => true, 'message' => 'Preferencias de cuenta y privacidad guardadas correctamente.'];
+    }
 }

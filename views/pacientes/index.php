@@ -150,6 +150,11 @@ require_once __DIR__ . '/../layouts/navbar.php';
                                         <i class="bi bi-clock-history"></i>
                                     </a>
 
+                                    <!-- Imprimir Ficha Médica PDF -->
+                                    <button type="button" class="btn btn-outline-danger" onclick="imprimirFichaMedica(<?= $p['id_paciente'] ?>)" title="Imprimir Ficha Médica (PDF)">
+                                        <i class="bi bi-printer"></i>
+                                    </button>
+
                                     <!-- Editar Paciente -->
                                     <button type="button" class="btn btn-outline-primary"
                                         onclick='editarPaciente(<?= htmlspecialchars(json_encode($p)) ?>)'

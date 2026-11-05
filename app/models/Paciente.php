@@ -231,4 +231,98 @@ class Paciente
 
         return ['status' => true, 'message' => "Estado del paciente actualizado a {$nuevoEstado}."];
     }
+
+    /**
+     * Actualiza datos personales y de contacto desde el perfil del paciente
+     * REGLA ESTRICTA: El CI es inmutable y no se modifica bajo ninguna circunstancia.
+     */
+    public static function actualizarDatosPersonalesYContacto(int $id_paciente, array $datos, ?int $id_usuario_auth = null): array
+    {
+        $pdo = Database::getConnection();
+
+        // 1. Obtener paciente actual para asegurar existencia y mantener su CI inalterable
+        $stmtActual = $pdo->prepare("SELECT ci, id_usuario, nombres, apellidos FROM pacientes WHERE id_paciente = :id");
+        $stmtActual->execute([':id' => $id_paciente]);
+        $pacienteActual = $stmtActual->fetch();
+
+        if (!$pacienteActual) {
+            return ['status' => false, 'message' => 'El paciente no existe en el registro clínico.'];
+        }
+
+        $nombres   = trim($datos['nombres'] ?? '');
+        $apellidos = trim($datos['apellidos'] ?? '');
+        $fecha_nac = trim($datos['fecha_nacimiento'] ?? '');
+        $sexo      = strtoupper(trim($datos['sexo'] ?? ''));
+        $telefono  = trim($datos['telefono'] ?? '');
+        $email     = trim($datos['email'] ?? '');
+        $direccion = trim($datos['direccion'] ?? '');
+
+        // 2. Validaciones obligatorias
+        if (empty($nombres) || empty($apellidos) || empty($fecha_nac) || empty($sexo) || empty($telefono)) {
+            return ['status' => false, 'message' => 'Los campos Nombres, Apellidos, Fecha de Nacimiento, Sexo y Teléfono son obligatorios.'];
+        }
+
+        if (!in_array($sexo, ['M', 'F'], true)) {
+            return ['status' => false, 'message' => "El sexo demográfico debe ser 'M' o 'F'."];
+        }
+
+        if (strtotime($fecha_nac) > time()) {
+            return ['status' => false, 'message' => 'La fecha de nacimiento no puede ser una fecha futura.'];
+        }
+
+        if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['status' => false, 'message' => 'El formato del correo electrónico ingresado no es válido.'];
+        }
+
+        try {
+            // 3. Actualizar tabla pacientes (El CI NUNCA se actualiza para garantizar trazabilidad e inmutabilidad)
+            $sql = "UPDATE pacientes 
+                    SET nombres = :nom, apellidos = :ape, fecha_nacimiento = :fnac,
+                        sexo = :sexo, telefono = :tel, email = :em, direccion = :dir
+                    WHERE id_paciente = :id";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':nom'  => $nombres,
+                ':ape'  => $apellidos,
+                ':fnac' => $fecha_nac,
+                ':sexo' => $sexo,
+                ':tel'  => $telefono,
+                ':em'   => !empty($email) ? $email : null,
+                ':dir'  => !empty($direccion) ? $direccion : null,
+                ':id'   => $id_paciente
+            ]);
+
+            // 4. Si el paciente tiene cuenta de usuario vinculada, sincronizar correo si no colisiona
+            if (!empty($pacienteActual['id_usuario']) && !empty($email)) {
+                $stmtCheckEmail = $pdo->prepare("SELECT 1 FROM usuarios WHERE LOWER(email) = LOWER(:em) AND id_usuario <> :id_u");
+                $stmtCheckEmail->execute([':em' => $email, ':id_u' => $pacienteActual['id_usuario']]);
+                if (!$stmtCheckEmail->fetch()) {
+                    $stmtUserEmail = $pdo->prepare("UPDATE usuarios SET email = :em WHERE id_usuario = :id_u");
+                    $stmtUserEmail->execute([':em' => $email, ':id_u' => $pacienteActual['id_usuario']]);
+                }
+            }
+
+            // 5. Sincronizar sesión si el usuario actual es este paciente
+            if (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['usuario']['id_paciente']) && (int)$_SESSION['usuario']['id_paciente'] === $id_paciente) {
+                $_SESSION['usuario']['nombre_completo'] = $nombres . ' ' . $apellidos;
+                if (!empty($email)) {
+                    $_SESSION['usuario']['email'] = $email;
+                }
+            }
+
+            // 6. Auditoría
+            AuditoriaHelper::registrar(
+                $id_usuario_auth,
+                'UPDATE',
+                'pacientes',
+                "Actualización de datos personales y contacto del paciente {$pacienteActual['ci']} ({$nombres} {$apellidos})"
+            );
+
+            return ['status' => true, 'message' => '¡Datos personales y de contacto actualizados exitosamente!'];
+
+        } catch (PDOException $e) {
+            return ['status' => false, 'message' => 'Error al actualizar datos: ' . $e->getMessage()];
+        }
+    }
 }

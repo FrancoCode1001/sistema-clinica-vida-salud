@@ -27,6 +27,9 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+# Control de paquetes
+composer.phar
+
 # Archivos de registro (logs) y temporales
 *.log
 logs/

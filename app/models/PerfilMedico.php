@@ -15,9 +15,11 @@ class PerfilMedico
     public static function obtenerPorPaciente(int $id_paciente): ?array
     {
         $pdo = Database::getConnection();
-        $sql = "SELECT pm.*, p.codigo_paciente, p.ci, p.nombres, p.apellidos, p.fecha_nacimiento, p.sexo, p.telefono, p.email, p.direccion
+        $sql = "SELECT pm.*, p.codigo_paciente, p.ci, p.nombres, p.apellidos, p.fecha_nacimiento, p.sexo, p.telefono, p.email, p.direccion,
+                       p.id_usuario, u.username, u.notificaciones_activas, u.privacidad_contacto_emergencia, u.privacidad_recordatorios
                 FROM pacientes p
                 LEFT JOIN perfiles_medicos pm ON p.id_paciente = pm.id_paciente
+                LEFT JOIN usuarios u ON p.id_usuario = u.id_usuario
                 WHERE p.id_paciente = :id";
 
         $stmt = $pdo->prepare($sql);

@@ -31,8 +31,17 @@ $pageTitle = $pageTitle ?? 'Clínica Vida Salud';
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="/clinicaVidaSalud/assets/css/custom.css">
+    <!-- Print.js para impresión directa de documentos y fichas PDF -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.min.css">
+
+    <!-- Estilos personalizados con control de versión anti-caché -->
+    <link rel="stylesheet" href="/clinicaVidaSalud/assets/css/custom.css?v=2.2">
 </head>
 <body>
 <div class="app-wrapper">
+<script>
+    // Restaurar inmediatamente el estado del sidebar antes del primer renderizado para evitar parpadeos
+    if (window.innerWidth >= 768 && localStorage.getItem('clinica_sidebar_collapsed') === 'true') {
+        document.querySelector('.app-wrapper')?.classList.add('sidebar-collapsed');
+    }
+</script>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Configuración de Conexión a Base de Datos PostgreSQL
  * Sistema de Gestión de Citas Médicas - Clínica Vida Salud
@@ -31,8 +32,8 @@ if (!$envSsl && isset($parsedUrl['query'])) {
     }
 }
 
-// 3. Si no hay variables de entorno de producción, cargar configuración local si existe
-if (!$envHost && file_exists(__DIR__ . '/local_config.php')) {
+// 3. Cargar configuración local si existe
+if (file_exists(__DIR__ . '/local_config.php')) {
     require_once __DIR__ . '/local_config.php';
 }
 
@@ -41,9 +42,10 @@ if (!defined('DB_HOST')) define('DB_HOST', $envHost ?: '127.0.0.1');
 if (!defined('DB_PORT')) define('DB_PORT', $envPort ?: '5432');
 if (!defined('DB_NAME')) define('DB_NAME', $envName ?: 'db_clinica_vida_salud');
 if (!defined('DB_USER')) define('DB_USER', $envUser ?: 'postgres');
-if (!defined('DB_PASS')) define('DB_PASS', $envPass !== null ? $envPass : '4134');
+if (!defined('DB_PASS')) define('DB_PASS', $envPass !== null ? $envPass : 'postgres');
 if (!defined('DB_PASSWORD')) define('DB_PASSWORD', DB_PASS);
 if (!defined('DB_SSLMODE')) define('DB_SSLMODE', $envSsl ?: (getenv('RENDER') ? 'require' : 'prefer'));
+if (!defined('GEMINI_API_KEY')) define('GEMINI_API_KEY', getenv('GEMINI_API_KEY') ?: '');
 
 class Database
 {

@@ -45,6 +45,9 @@ CREATE TABLE usuarios (
     password_hash VARCHAR(255) NOT NULL,
     id_rol INT NOT NULL,
     estado VARCHAR(15) NOT NULL DEFAULT 'ACTIVO',
+    notificaciones_activas BOOLEAN NOT NULL DEFAULT TRUE,
+    privacidad_contacto_emergencia BOOLEAN NOT NULL DEFAULT TRUE,
+    privacidad_recordatorios BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
@@ -179,6 +182,22 @@ CREATE TABLE bitacoras (
     fecha_hora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_bitacora_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
+
+-- 1.12 Tabla: notificaciones (Sistema de Notificaciones Internas)
+CREATE TABLE notificaciones (
+    id_notificacion SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    tipo VARCHAR(50) NOT NULL, -- CITA_NUEVA, CITA_CONFIRMADA, CITA_REPROGRAMADA, CITA_CANCELADA, CITA_RECORDATORIO_MEDICO, SISTEMA
+    titulo VARCHAR(150) NOT NULL,
+    mensaje TEXT NOT NULL,
+    enlace VARCHAR(255) NULL,
+    leida BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notif_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_notif_usuario_leida ON notificaciones (id_usuario, leida);
+CREATE INDEX idx_notif_fecha ON notificaciones (fecha_creacion DESC);
 
 -- ============================================================================
 -- 2. POBLACIÓN DE DATOS SEMILLA (INSERT - Páginas 94-98)

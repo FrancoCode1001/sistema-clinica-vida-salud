@@ -6,16 +6,24 @@
 
 FROM php:8.2-apache
 
-# 1. Instalar dependencias del sistema y biblioteca cliente de PostgreSQL
+# 1. Instalar dependencias del sistema y bibliotecas para PostgreSQL y Dompdf (GD y zip)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
     unzip \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 2. Configurar e instalar extensiones oficiales de PHP para PostgreSQL
+# 2. Configurar e instalar extensiones oficiales de PHP (PostgreSQL, GD con FreeType/JPEG, Zip)
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-    && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pgsql
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pgsql gd zip
+
+# Instalar Composer para gestionar dependencias PHP (Dompdf) en Render
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # 3. Habilitar módulos esenciales de Apache (rewrite y alias)
 RUN a2enmod rewrite alias headers
@@ -56,6 +64,9 @@ WORKDIR /var/www/html
 
 # 8. Copiar los archivos del proyecto al contenedor
 COPY . /var/www/html/
+
+# Instalar dependencias PHP (Dompdf) optimizadas para producción
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # 9. Asignar propiedad y permisos de archivos al usuario www-data de Apache
 RUN chown -R www-data:www-data /var/www/html \

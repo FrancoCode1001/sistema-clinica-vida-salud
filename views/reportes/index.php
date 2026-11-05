@@ -25,6 +25,197 @@ if ($fechaFin < $fechaInicio) {
     $fechaFin = $fechaInicio;
 }
 
+// Exportación a PDF con Dompdf (CU-14)
+if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
+    require_once __DIR__ . '/../../app/helpers/PdfHelper.php';
+    $descargar = isset($_GET['download']) && $_GET['download'] === '1';
+    $fechaEmision = date('d/m/Y H:i');
+    $estilosBase = PdfHelper::getEstilosBase();
+    $usuarioEmisor = htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Administración');
+    $periodoTexto = date('d/m/Y', strtotime($fechaInicio)) . ' al ' . date('d/m/Y', strtotime($fechaFin));
+    $orientacion = ($tipoReporte === 'detallado') ? 'landscape' : 'portrait';
+
+    $tituloReporte = 'Reporte de Citas Médicas';
+    $tablaHtml = '';
+
+    if ($tipoReporte === 'estados') {
+        $tituloReporte = 'Reporte Estadístico de Citas por Estado';
+        $data = ReporteController::reportePorEstado($fechaInicio, $fechaFin);
+        $tablaHtml = '<table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Estado de Cita</th>
+                    <th style="width: 25%; text-align: center;">Total Citas</th>
+                    <th style="width: 25%; text-align: right;">Porcentaje</th>
+                </tr>
+            </thead>
+            <tbody>';
+        foreach ($data['filas'] as $r) {
+            $tablaHtml .= '<tr>
+                <td><strong>' . htmlspecialchars($r['estado']) . '</strong></td>
+                <td style="text-align: center;">' . (int)$r['total_citas'] . '</td>
+                <td style="text-align: right;">' . $r['porcentaje'] . '%</td>
+            </tr>';
+        }
+        $tablaHtml .= '<tr style="font-weight: bold; background-color: #f1f5f9;">
+            <td>TOTAL GENERAL</td>
+            <td style="text-align: center;">' . (int)$data['total_general'] . '</td>
+            <td style="text-align: right;">100%</td>
+        </tr></tbody></table>';
+
+    } elseif ($tipoReporte === 'especialidades') {
+        $tituloReporte = 'Reporte de Productividad por Especialidad Médica';
+        $rows = ReporteController::reportePorEspecialidad($fechaInicio, $fechaFin);
+        $totalGeneral = array_sum(array_column($rows, 'total_citas'));
+        $tablaHtml = '<table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Especialidad Médica</th>
+                    <th style="width: 25%; text-align: center;">Total Citas</th>
+                    <th style="width: 25%; text-align: right;">Participación</th>
+                </tr>
+            </thead>
+            <tbody>';
+        foreach ($rows as $r) {
+            $pct = $totalGeneral > 0 ? round(($r['total_citas'] / $totalGeneral) * 100, 1) : 0;
+            $tablaHtml .= '<tr>
+                <td><strong>' . htmlspecialchars($r['especialidad']) . '</strong></td>
+                <td style="text-align: center;">' . (int)$r['total_citas'] . '</td>
+                <td style="text-align: right;">' . $pct . '%</td>
+            </tr>';
+        }
+        $tablaHtml .= '<tr style="font-weight: bold; background-color: #f1f5f9;">
+            <td>TOTAL GENERAL DE CITAS</td>
+            <td style="text-align: center;">' . (int)$totalGeneral . '</td>
+            <td style="text-align: right;">100%</td>
+        </tr></tbody></table>';
+
+    } elseif ($tipoReporte === 'medicos') {
+        $tituloReporte = 'Reporte de Atenciones por Médico Especialista';
+        $rows = ReporteController::reportePorMedico($fechaInicio, $fechaFin);
+        $tablaHtml = '<table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 15%;">Código</th>
+                    <th style="width: 35%;">Médico Especialista</th>
+                    <th style="width: 13%; text-align: center;">Total</th>
+                    <th style="width: 12%; text-align: center;">Atendidas</th>
+                    <th style="width: 12%; text-align: center;">Canceladas</th>
+                    <th style="width: 13%; text-align: center;">Inasistencias</th>
+                </tr>
+            </thead>
+            <tbody>';
+        foreach ($rows as $r) {
+            $tablaHtml .= '<tr>
+                <td>' . htmlspecialchars($r['codigo_medico']) . '</td>
+                <td><strong>Dr(a). ' . htmlspecialchars($r['medico']) . '</strong></td>
+                <td style="text-align: center;">' . (int)$r['total_citas'] . '</td>
+                <td style="text-align: center; color: #16a34a; font-weight: bold;">' . (int)$r['atendidas'] . '</td>
+                <td style="text-align: center; color: #dc2626;">' . (int)$r['canceladas'] . '</td>
+                <td style="text-align: center; color: #d97706;">' . (int)$r['inasistencias'] . '</td>
+            </tr>';
+        }
+        $tablaHtml .= '</tbody></table>';
+
+    } else {
+        $tituloReporte = 'Reporte Detallado de Citas Médicas';
+        $citas = CitaMedica::listar([
+            'fecha_inicio' => $fechaInicio,
+            'fecha_fin'    => $fechaFin,
+            'id_medico'    => $id_medico,
+            'id_especialidad' => $id_esp,
+            'estado'       => $estado
+        ]);
+        $tablaHtml = '<table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Código</th>
+                    <th style="width: 11%;">Fecha / Hora</th>
+                    <th style="width: 18%;">Paciente</th>
+                    <th style="width: 10%;">C.I.</th>
+                    <th style="width: 18%;">Médico</th>
+                    <th style="width: 15%;">Especialidad</th>
+                    <th style="width: 8%;">Mod.</th>
+                    <th style="width: 10%; text-align: center;">Estado</th>
+                </tr>
+            </thead>
+            <tbody>';
+        foreach ($citas as $c) {
+            $badgeClass = 'badge-secondary';
+            if ($c['estado'] === 'ATENDIDA') $badgeClass = 'badge-success';
+            elseif ($c['estado'] === 'PROGRAMADA' || $c['estado'] === 'CONFIRMADA') $badgeClass = 'badge-primary';
+            elseif ($c['estado'] === 'CANCELADA') $badgeClass = 'badge-danger';
+            elseif ($c['estado'] === 'INASISTENCIA') $badgeClass = 'badge-warning';
+
+            $tablaHtml .= '<tr>
+                <td>' . htmlspecialchars($c['codigo_cita']) . '</td>
+                <td>' . date('d/m/Y', strtotime($c['fecha_cita'])) . ' ' . substr($c['hora_inicio'], 0, 5) . '</td>
+                <td>' . htmlspecialchars($c['paciente_nombre']) . '</td>
+                <td>' . htmlspecialchars($c['paciente_ci']) . '</td>
+                <td>Dr(a). ' . htmlspecialchars($c['medico_nombre']) . '</td>
+                <td>' . htmlspecialchars($c['especialidad_nombre']) . '</td>
+                <td>' . htmlspecialchars($c['modalidad']) . '</td>
+                <td style="text-align: center;"><span class="badge ' . $badgeClass . '">' . htmlspecialchars($c['estado']) . '</span></td>
+            </tr>';
+        }
+        $tablaHtml .= '</tbody></table>';
+    }
+
+    $html = <<<HTML
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{$tituloReporte}</title>
+    {$estilosBase}
+</head>
+<body>
+    <table class="header-table">
+        <tr>
+            <td style="width: 60%;">
+                <div class="clinic-brand">Clínica Vida Salud</div>
+                <div class="clinic-tagline">Centro Médico Integral &middot; Especialidades Ambulatorias</div>
+                <div class="clinic-tagline">Dirección: Av. Principal #123, Zona Central &middot; Teléfono: (+591) 4-4567890</div>
+            </td>
+            <td class="doc-title-container" style="width: 40%;">
+                <div class="doc-title">{$tituloReporte}</div>
+                <div class="doc-meta"><strong>PERÍODO:</strong> {$periodoTexto}</div>
+                <div class="doc-meta"><strong>EMITIDO:</strong> {$fechaEmision}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="section-title">Consolidado y Resultados del Reporte</div>
+    {$tablaHtml}
+
+    <table class="signature-area">
+        <tr>
+            <td style="width: 50%; vertical-align: bottom;">
+                <div style="font-size: 8.5px; color: #64748b;">
+                    Generado por: <strong>{$usuarioEmisor}</strong><br>
+                    Clínica Vida Salud &middot; Módulo de Consultas y Reportes
+                </div>
+            </td>
+            <td style="width: 50%; text-align: right; vertical-align: bottom;">
+                <div style="display: inline-block; width: 220px; text-align: center; border-top: 1px solid #334155; padding-top: 5px;">
+                    <span style="font-size: 9px; font-weight: bold; color: #1e293b;">DIRECCIÓN MÉDICA / ADMINISTRACIÓN</span><br>
+                    <span style="font-size: 8px; color: #64748b;">Firma y Sello de Validación</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer-legal">
+        Informe generado automáticamente por el Sistema de Gestión de Citas Médicas de Clínica Vida Salud.
+    </div>
+</body>
+</html>
+HTML;
+
+    $nombreArchivo = 'reporte_' . $tipoReporte . '_' . date('Ymd_His') . '.pdf';
+    PdfHelper::streamHtml($html, $nombreArchivo, $descargar, 'A4', $orientacion);
+}
+
 // Exportación a CSV (CU-14)
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     header('Content-Type: text/csv; charset=utf-8');
@@ -102,11 +293,15 @@ require_once __DIR__ . '/../layouts/navbar.php';
                 Consolidación estadística por rango de fechas, estados, médicos y especialidades con exportación a PDF y CSV.
             </p>
         </div>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-2" onclick="window.print()">
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary d-flex align-items-center gap-2" onclick="imprimirReporteActual()">
                 <i class="bi bi-printer"></i>
-                <span>Imprimir / PDF</span>
+                <span>Imprimir Reporte</span>
             </button>
+            <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'pdf', 'download' => '1'])) ?>" class="btn btn-outline-danger d-flex align-items-center gap-2" target="_blank">
+                <i class="bi bi-file-earmark-pdf"></i>
+                <span>Exportar PDF</span>
+            </a>
             <a href="?<?= http_build_query(array_merge($_GET, ['export' => 'csv'])) ?>" class="btn btn-outline-success d-flex align-items-center gap-2">
                 <i class="bi bi-file-earmark-spreadsheet"></i>
                 <span>Exportar CSV</span>
@@ -375,5 +570,15 @@ require_once __DIR__ . '/../layouts/navbar.php';
         </div>
     </div>
 <?php endif; ?>
+
+<script>
+function imprimirReporteActual() {
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', 'pdf');
+    params.delete('download');
+    const url = window.location.pathname + '?' + params.toString();
+    imprimirDocumentoPdf(url, 'Reporte Administrativo - Vida Salud');
+}
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -7,6 +7,7 @@
 
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/HorarioAtencion.php';
+require_once __DIR__ . '/Notificacion.php';
 require_once __DIR__ . '/../helpers/AuditoriaHelper.php';
 
 class CitaMedica
@@ -222,6 +223,9 @@ class CitaMedica
                 "Programación de cita médica {$codigo_cita} para el {$fecha_cita} a las {$hora_inicio}"
             );
 
+            // Notificación interna en tiempo real
+            Notificacion::notificarNuevaCita($id_cita);
+
             return [
                 'status'      => true,
                 'message'     => "Cita médica {$codigo_cita} programada exitosamente.",
@@ -329,6 +333,9 @@ class CitaMedica
                 "Reprogramación de cita ID {$id_cita} hacia {$nueva_fecha} {$nuevo_inicio}"
             );
 
+            // Notificación interna de reprogramación
+            Notificacion::notificarReprogramacionCita($id_cita, $nueva_fecha, $nuevo_inicio);
+
             return ['status' => true, 'message' => "Cita médica reprogramada con éxito para el {$nueva_fecha} a las {$nuevo_inicio}."];
 
         } catch (Exception $e) {
@@ -396,6 +403,9 @@ class CitaMedica
                 'citas_medicas',
                 "Cancelación lógica de cita {$cita['codigo_cita']}. Horario liberado (RN09). Motivo: {$motivo}"
             );
+
+            // Notificación interna de cancelación
+            Notificacion::notificarCancelacionCita($id_cita, $motivo);
 
             return ['status' => true, 'message' => "Cita {$cita['codigo_cita']} cancelada exitosamente. El horario ha quedado liberado."];
 
@@ -465,6 +475,11 @@ class CitaMedica
                 'citas_medicas',
                 "Transición de estado de cita {$cita['codigo_cita']}: {$cita['estado']} -> {$nuevo_estado}"
             );
+
+            // Notificar si la cita fue confirmada
+            if ($nuevo_estado === 'CONFIRMADA') {
+                Notificacion::notificarConfirmacionCita($id_cita);
+            }
 
             return ['status' => true, 'message' => "Estado de la cita actualizado a '{$nuevo_estado}'."];
 

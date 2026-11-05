@@ -10,9 +10,9 @@ $usuario = AuthMiddleware::usuario();
 $rol = $usuario['nombre_rol'] ?? 'Invitado';
 $currentPage = $currentPage ?? '';
 ?>
-<aside class="sidebar">
+<aside class="sidebar" id="appSidebar">
     <!-- Encabezado de Marca -->
-    <div class="sidebar-header">
+    <div class="sidebar-header d-flex align-items-center justify-content-between">
         <a href="/clinicaVidaSalud/views/dashboard/index.php" class="sidebar-brand">
             <span class="brand-badge"><i class="bi bi-hospital"></i></span>
             <div>
@@ -20,6 +20,9 @@ $currentPage = $currentPage ?? '';
                 <small class="text-white-50" style="font-size: 0.7rem; font-weight: 400;">Gestión de Citas</small>
             </div>
         </a>
+        <button type="button" class="btn btn-sm btn-link text-white-50 p-1 d-md-none" id="sidebarCloseBtn" title="Cerrar menú">
+            <i class="bi bi-x-lg fs-5"></i>
+        </button>
     </div>
 
     <!-- Perfil de Usuario en Sesión -->
@@ -74,19 +77,17 @@ $currentPage = $currentPage ?? '';
         <?php endif; ?>
 
         <!-- PAQUETE 3: GESTIÓN DE PACIENTES -->
-        <?php if (AuthMiddleware::esAdmin() || AuthMiddleware::esRecepcionista() || AuthMiddleware::esPaciente()): ?>
-            <div class="nav-section-title">Pacientes</div>
-            <?php if (AuthMiddleware::esAdmin() || AuthMiddleware::esRecepcionista()): ?>
-                <a href="/clinicaVidaSalud/views/pacientes/index.php" class="sidebar-link <?= $currentPage === 'pacientes' ? 'active' : '' ?>">
-                    <i class="bi bi-people"></i>
-                    <span>Gestionar Pacientes</span>
-                </a>
-            <?php endif; ?>
-            <a href="/clinicaVidaSalud/views/pacientes/perfil.php" class="sidebar-link <?= $currentPage === 'perfil' ? 'active' : '' ?>">
-                <i class="bi bi-clipboard2-pulse"></i>
-                <span>Perfil Clínico</span>
+        <div class="nav-section-title"><?= AuthMiddleware::esMedico() ? 'Fichas Clínicas' : 'Pacientes' ?></div>
+        <?php if (AuthMiddleware::esAdmin() || AuthMiddleware::esRecepcionista()): ?>
+            <a href="/clinicaVidaSalud/views/pacientes/index.php" class="sidebar-link <?= $currentPage === 'pacientes' ? 'active' : '' ?>">
+                <i class="bi bi-people"></i>
+                <span>Gestionar Pacientes</span>
             </a>
         <?php endif; ?>
+        <a href="/clinicaVidaSalud/views/pacientes/perfil.php" class="sidebar-link <?= $currentPage === 'perfil' ? 'active' : '' ?>">
+            <i class="bi bi-clipboard2-pulse"></i>
+            <span><?= AuthMiddleware::esMedico() ? 'Ficha Clínica' : 'Perfil Clínico' ?></span>
+        </a>
 
         <!-- PAQUETE 4: PROGRAMACIÓN Y CONTROL DE CITAS -->
         <div class="nav-section-title">Programación de Citas</div>
@@ -94,6 +95,12 @@ $currentPage = $currentPage ?? '';
             <i class="bi bi-calendar2-check"></i>
             <span>Disponibilidad</span>
         </a>
+        <?php if (AuthMiddleware::esPaciente()): ?>
+            <a href="javascript:void(0)" onclick="document.getElementById('btnAsistenteVozFlotante')?.click()" class="sidebar-link text-info">
+                <i class="bi bi-mic-fill text-info"></i>
+                <span>Asistente por Voz <span class="badge bg-danger ms-1" style="font-size: 0.6rem;">IA</span></span>
+            </a>
+        <?php endif; ?>
         <?php if (AuthMiddleware::esAdmin() || AuthMiddleware::esRecepcionista() || AuthMiddleware::esPaciente()): ?>
             <a href="/clinicaVidaSalud/views/citas/programar.php" class="sidebar-link <?= $currentPage === 'programar' ? 'active' : '' ?>">
                 <i class="bi bi-calendar-plus"></i>
@@ -151,6 +158,13 @@ $currentPage = $currentPage ?? '';
                 <span>Bitácora</span>
             </a>
         <?php endif; ?>
+
+        <!-- CUENTA Y PREFERENCIAS -->
+        <div class="nav-section-title">Mi Cuenta</div>
+        <a href="/clinicaVidaSalud/views/cuenta/index.php" class="sidebar-link <?= $currentPage === 'cuenta' ? 'active' : '' ?>">
+            <i class="bi bi-gear"></i>
+            <span>Seguridad y Privacidad</span>
+        </a>
     </nav>
 
     <!-- Footer del Sidebar con Cerrar Sesión -->
@@ -161,3 +175,5 @@ $currentPage = $currentPage ?? '';
         </a>
     </div>
 </aside>
+<!-- Telón de fondo (Backdrop) para cerrar sidebar en pantallas móviles -->
+<div class="sidebar-backdrop d-md-none" id="sidebarBackdrop"></div>

@@ -162,16 +162,13 @@ require_once __DIR__ . '/../layouts/navbar.php';
                                         </form>
                                     <?php endif; ?>
 
-                                    <!-- Si está CONFIRMADA o PROGRAMADA -> Marcar Atendida -->
+                                    <!-- Si está CONFIRMADA o PROGRAMADA -> Marcar Atendida con Modal de Observación / Diagnóstico Clínico -->
                                     <?php if (in_array($c['estado'], ['PROGRAMADA', 'CONFIRMADA'], true)): ?>
-                                        <form method="POST" class="d-inline">
-                                            <input type="hidden" name="id_cita" value="<?= $c['id_cita'] ?>">
-                                            <input type="hidden" name="nuevo_estado" value="ATENDIDA">
-                                            <input type="hidden" name="observacion" value="Consulta médica efectuada exitosamente">
-                                            <button type="submit" class="btn btn-outline-success" title="Registrar Atención">
-                                                <i class="bi bi-check2-all me-1"></i>Atender
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="abrirModalAtender(<?= $c['id_cita'] ?>, '<?= htmlspecialchars($c['codigo_cita']) ?>', '<?= htmlspecialchars($c['paciente_nombre']) ?>')"
+                                            title="Registrar Atención Médica">
+                                            <i class="bi bi-check2-all me-1"></i>Atender
+                                        </button>
                                     <?php endif; ?>
 
                                     <!-- Si no vino -> Inasistencia -->
@@ -202,6 +199,48 @@ require_once __DIR__ . '/../layouts/navbar.php';
     </div>
 </div>
 
+<!-- Modal: Registrar Atención Médica con Observación Clínica (RF10) -->
+<div class="modal fade" id="modalAtenderCita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <form method="POST">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-clipboard2-check-fill me-2"></i>Registrar Consulta Atendida
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" name="id_cita" id="modal_atender_id_cita">
+                    <input type="hidden" name="nuevo_estado" value="ATENDIDA">
+
+                    <div class="alert alert-light border small text-muted mb-3">
+                        <div><strong>Cita:</strong> <span class="font-monospace text-primary fw-bold" id="modal_atender_codigo"></span></div>
+                        <div><strong>Paciente:</strong> <span class="fw-semibold text-dark" id="modal_atender_paciente"></span></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">
+                            <i class="bi bi-file-earmark-medical text-primary me-1"></i>Observación / Diagnóstico Clínico Breve (Opcional):
+                        </label>
+                        <textarea name="observacion" id="modal_atender_observacion" class="form-control" rows="3"
+                            placeholder="ej. Paciente refiere mejoría sintomática. Se indica medicación de soporte y reposo por 48 horas."></textarea>
+                        <div class="form-text small text-muted">
+                            Esta nota quedará registrada en la trazabilidad histórica de la consulta médica (RF10 / RF12).
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-semibold shadow-sm">
+                        <i class="bi bi-check2-circle me-1"></i>Confirmar Atención
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Trazabilidad de Cambios de Estado (RF10 / RF12) -->
 <div class="modal fade" id="modalTrazabilidad" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -220,6 +259,15 @@ require_once __DIR__ . '/../layouts/navbar.php';
 </div>
 
 <script>
+    function abrirModalAtender(idCita, codigo, paciente) {
+        document.getElementById('modal_atender_id_cita').value = idCita;
+        document.getElementById('modal_atender_codigo').textContent = codigo;
+        document.getElementById('modal_atender_paciente').textContent = paciente;
+        document.getElementById('modal_atender_observacion').value = 'Consulta médica efectuada exitosamente';
+        const modal = new bootstrap.Modal(document.getElementById('modalAtenderCita'));
+        modal.show();
+    }
+
     function verHistorialEstados(idCita, codigo) {
         document.getElementById('modal_hist_codigo').textContent = codigo;
         const body = document.getElementById('modal_hist_body');

@@ -36,6 +36,8 @@ body {
     display: flex;
     min-height: 100vh;
     width: 100%;
+    position: relative;
+    overflow-x: hidden;
 }
 
 .sidebar {
@@ -49,7 +51,50 @@ body {
     border-right: 1px solid #1e293b;
     box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
     z-index: 1040;
-    transition: all 0.3s ease;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estado colapsado en pantallas de escritorio */
+.app-wrapper.sidebar-collapsed .sidebar {
+    margin-left: calc(-1 * var(--sidebar-width));
+}
+
+/* Telón de fondo móvil */
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 1035;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Adaptación responsive para pantallas medianas y móviles (< 768px) */
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        height: 100vh;
+        transform: translateX(-100%);
+        margin-left: 0 !important;
+        box-shadow: 8px 0 25px rgba(0, 0, 0, 0.25);
+    }
+
+    .app-wrapper.sidebar-mobile-open .sidebar {
+        transform: translateX(0);
+    }
 }
 
 .sidebar-header {
@@ -168,6 +213,8 @@ body {
     display: flex;
     flex-direction: column;
     min-width: 0;
+    width: 100%;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .top-navbar {
@@ -435,3 +482,189 @@ body {
     padding: 2.25rem 2rem;
     text-align: center;
 }
+
+/* ==========================================================================
+   TABS Y NOTIFICACIONES INTERNAS
+   ========================================================================== */
+
+.custom-nav-pills .nav-link {
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.88rem;
+    border-radius: 8px;
+    padding: 0.65rem 1.25rem;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-nav-pills .nav-link:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-color);
+}
+
+.custom-nav-pills .nav-link.active {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.25);
+}
+
+.notif-item {
+    transition: background-color 0.15s ease-in-out;
+}
+
+.notif-item:hover {
+    background-color: #f8fafc !important;
+}
+
+/* ==========================================================================
+   ASISTENTE DE VOZ CON INTELIGENCIA ARTIFICIAL (GEMINI 3.8 FLASH)
+   ========================================================================== */
+
+.btn-voz-flotante {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px -3px rgba(2, 132, 199, 0.4), 0 4px 6px -4px rgba(2, 132, 199, 0.2);
+    border: 3px solid rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    z-index: 1050;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    outline: none;
+}
+
+.btn-voz-flotante:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 15px 30px -4px rgba(2, 132, 199, 0.55), 0 8px 10px -6px rgba(2, 132, 199, 0.3);
+    color: #ffffff;
+}
+
+.btn-voz-flotante:active {
+    transform: scale(0.95);
+}
+
+.btn-voz-flotante .badge-ia-voz {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 0.2rem 0.45rem;
+    border-radius: 9999px;
+    border: 2px solid #ffffff;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Pulsación continua cuando está activo */
+.btn-voz-flotante.escuchando {
+    background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+    animation: pulseRing 1.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes pulseRing {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* Visualizador de Ondas de Voz */
+.voice-wave-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 40px;
+    margin: 1rem 0;
+}
+
+.voice-wave-bar {
+    width: 4px;
+    height: 10px;
+    background: #0284c7;
+    border-radius: 9999px;
+    transition: height 0.15s ease;
+}
+
+.voice-wave-container.animando .voice-wave-bar {
+    animation: waveBounce 1.2s ease-in-out infinite alternate;
+}
+
+.voice-wave-container.animando .voice-wave-bar:nth-child(1) { animation-delay: 0.1s; height: 16px; }
+.voice-wave-container.animando .voice-wave-bar:nth-child(2) { animation-delay: 0.3s; height: 28px; }
+.voice-wave-container.animando .voice-wave-bar:nth-child(3) { animation-delay: 0.5s; height: 38px; }
+.voice-wave-container.animando .voice-wave-bar:nth-child(4) { animation-delay: 0.2s; height: 24px; }
+.voice-wave-container.animando .voice-wave-bar:nth-child(5) { animation-delay: 0.4s; height: 32px; }
+
+@keyframes waveBounce {
+    0% {
+        transform: scaleY(0.3);
+        background: #0284c7;
+    }
+    50% {
+        transform: scaleY(1);
+        background: #0d9488;
+    }
+    100% {
+        transform: scaleY(0.4);
+        background: #0284c7;
+    }
+}
+
+/* Modal del Asistente */
+.modal-voz-dialog {
+    max-width: 540px;
+}
+
+.modal-voz-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    border-bottom: 0;
+    padding: 1.25rem 1.5rem;
+}
+
+.transcript-bubble {
+    background: #f1f5f9;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-size: 0.92rem;
+    color: #334155;
+    min-height: 48px;
+}
+
+.assistant-response-bubble {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-size: 0.92rem;
+    color: #166534;
+}
+
+.confirmation-card {
+    border: 2px dashed #0284c7;
+    border-radius: 12px;
+    background: #f0f9ff;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Vista: Usuarios y Roles (CU-02)
- * Paquete 1: Usuarios y Seguridad
- */
 require_once __DIR__ . '/../../app/helpers/AuthMiddleware.php';
 require_once __DIR__ . '/../../app/models/Usuario.php';
 require_once __DIR__ . '/../../app/models/Rol.php';
